@@ -48,8 +48,12 @@ struct SwitchFinder : public FunctionPass {
   }
 
   bool isReferenceDependant(const Value &value) {
-    if (isa<GetElementPtrInst>(&value)) {
-      return true;
+    if (auto gep = dyn_cast<GetElementPtrInst>(&value)) {
+      Value* firstOperand = gep->getOperand(0);
+      Type* type = firstOperand->getType();
+      if (type->isPointerTy() || type->isArrayTy()) {
+        return true;
+      }
     }
 
     if (auto instruction = dyn_cast<Instruction>(&value)) {
