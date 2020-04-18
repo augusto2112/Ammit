@@ -4,7 +4,7 @@
 # Driver for the decode_bo function.
 # Author: Fernando Magno Quintao Pereira
 # Date: April 19th, 2020
-# Usage: run.sh SIZE CODE ITER
+# Usage: run.sh SIZE CODE ITER COMP
 # -------------------------------
 # Results on 1.4GHz Intel Core i5:
 # OFF10, S2, S1_D,
@@ -16,17 +16,18 @@
 # 2.85, 2.73, 2.73,
 ###############################################################################
 
-if [ $# -lt 3 ]
+if [ $# -lt 4 ]
 then
-  echo Syntax: run.sh SIZE CODE ITER
+  echo Syntax: run.sh SIZE CODE ITER COMP
   exit 1
 else
-  clang++ -O1 decode_bo_OFF10.c -o decode_bo_OFF10.exe
-  clang++ -O1 decode_bo_S2.c -o decode_bo_S2.exe
-  clang++ -O1 decode_bo_S1_D.c -o decode_bo_S1_D.exe
   SIZE=$1
   CODE=$2
   ITER=$3
+  COMP=$4
+  $COMP -O1 decode_bo_OFF10.c -o decode_bo_OFF10.exe
+  $COMP -O1 decode_bo_S2.c -o decode_bo_S2.exe
+  $COMP -O1 decode_bo_S1_D.c -o decode_bo_S1_D.exe
   echo "OFF10, S2, S1_D,"
   for (( c=0; c<=ITER; c++))
   do
