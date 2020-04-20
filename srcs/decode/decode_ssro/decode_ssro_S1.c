@@ -27,13 +27,15 @@ TYPE_2__ dec_insn ;
 
 static void decode_ssro() {
   int i;
+
   for (i = 0; i < dec_insn.code->nr_operands; ++i) {
     switch (dec_insn.code->fields[i]) {
-      case FMT_SSRO_OFF4:
-        dec_insn.cexp[i] = (dec_insn.opcode & 0xf000) >> 12;
-        break;
       case FMT_SSRO_S1:
         dec_insn.regs[i] = (dec_insn.opcode & 0x0f00) >> 8;
+        break;
+
+      case FMT_SSRO_OFF4:
+        dec_insn.cexp[i] = (dec_insn.opcode & 0xf000) >> 12;
         break;
     }
   }
