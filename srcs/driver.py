@@ -47,20 +47,23 @@ def run_experiment(compiler, opt_levels, directory, number_of_experiments, csv_w
     for config in configs:
         for opt_level in opt_levels:
             for path in paths:
-                exe_path = Path(str(path).replace('.c', '.exe'))
-                name, permutation = exe_path.stem.rsplit('_', 1)
-                print(f"Running: {name}, permutation: {permutation}, optimization: {opt_level}, config: {config}")
-                run(f'{compiler} {path} -O{opt_level} -o {exe_path}', shell=True, check=True)
-                runtimes = []
-                for i in range(1, number_of_experiments + 1):
-                    output = run(f'{exe_path} {config}', shell=True, check=True, capture_output=True)
-                    runtimes.append(float(output.stdout.decode('ascii')))
-                csv_writer.writerow([name, config, permutation, opt_level] + runtimes + [median(runtimes)])
-                exe_path.unlink()
+                try:
+                    exe_path = Path(str(path).replace('.c', '.exe'))
+                    name, permutation = exe_path.stem.rsplit('_', 1)
+                    print(f"Running: {name}, permutation: {permutation}, optimization: {opt_level}, config: {config}")
+                    run(f'{compiler} {path} -O{opt_level} -o {exe_path}', shell=True, check=True)
+                    runtimes = []
+                    for i in range(1, number_of_experiments + 1):
+                        output = run(f'{exe_path} {config}', shell=True, check=True, capture_output=True)
+                        runtimes.append(float(output.stdout.decode('ascii')))
+                    csv_writer.writerow([name, config, permutation, opt_level] + runtimes + [median(runtimes)])
+                except Exception as e:
+                    print(f"{name} failed with exception: {e}. Skipping")
+                finally:
+                    if exe_path.exists():
+                        exe_path.unlink()
     for path in paths:
         path.unlink()
-
-
 
 def read_config(directory):
     config_path = Path(path.join(directory, "config"))    
@@ -68,8 +71,6 @@ def read_config(directory):
         return []
     with open(config_path) as config:
         return [line for line in [line.split('#')[0].strip() for line in config] if line != '']
-
-
 
 def process(directory, csv_writer,number_of_experiments, optimization):
     if "tmp" in str(directory): return
@@ -86,19 +87,23 @@ if __name__ == "__main__":
     parser.add_argument('num_experiments', type=int, help='Number of experiments to run.')
     parser.add_argument('-O', dest='optimization', type=int, default=[1], nargs='*',
                         help='Optimization levels to compile the experiments. Defaults to 1')
-    parser.add_argument('-compiler', dest='compiler', default='clang', help='Compiler to use. Default is clang')
+    parser.add_argument('-compiler', dest='compiler', default='clang++', help='Compiler to use. Default is clang')
+    parser.add_argument('-o', dest='output_file', default='results.csv', help='Ouput file to write. Default is "results.csv"')
+    parser.add_argument('-d', dest='start_directory', default='.', 
+                        help='Start directory for recursive search. Default is the current directory.')
     args = parser.parse_args()
     
     number_of_experiments = args.num_experiments
     compiler = args.compiler
     optimization = args.optimization
-    
+    output_file = args.output_file
+    start_directory = args.start_directory
 
     tmp = Path("./tmp").resolve()
     tmp.mkdir(parents=True, exist_ok=True)
-    with open("results.csv", 'w') as csv_file:
+    with open(output_file, 'w') as csv_file:
         csv_writer = writer(csv_file)
         arg_rows = [f'Exp {i}' for i in range(1, number_of_experiments + 1)]
         csv_writer.writerow(["Name", "Arguments", "Permutation", "Optimization"] + arg_rows + ["Median"])
-        process(Path("."), csv_writer, number_of_experiments, optimization)        
+        process(Path(start_directory), csv_writer, number_of_experiments, optimization)        
     tmp.rmdir()

@@ -21,8 +21,8 @@ struct TYPE_3__ {
 };
 
 /* Variables and functions */
-#define  FMT_SSRO_OFF4 2 
-#define  FMT_SSRO_S1   4 
+#define FIRST 601
+#define SECOND  602 
 TYPE_2__ dec_insn ; 
 
 static void decode_ssro() {
@@ -31,12 +31,12 @@ static void decode_ssro() {
     switch (dec_insn.code->fields[i]) {
       // INSERT HERE
 			// START 1
-      case FMT_SSRO_OFF4:
+      case FIRST:
         dec_insn.cexp[i] = (dec_insn.opcode & 0xf000) >> 12;
         break;
       // END 1
       // START 2
-      case FMT_SSRO_S1:
+      case SECOND:
         dec_insn.regs[i] = (dec_insn.opcode & 0x0f00) >> 8;
         break;
       // END 2
@@ -44,29 +44,46 @@ static void decode_ssro() {
   }
 }
 
-int setup(int argc, char** argv) {
+
+void setup(unsigned long SIZE, int *elements, float *chances, int num_elements) {
+  dec_insn.opcode = ~0U;
+  dec_insn.cexp =  (int*)malloc(SIZE * sizeof(int));
+  dec_insn.regs =  (int*)malloc(SIZE * sizeof(int));
+  dec_insn.code = (TYPE_1__*)malloc(sizeof(TYPE_1__));
+  dec_insn.code->nr_operands = SIZE;
+  dec_insn.code->fields = (int*)malloc(SIZE * sizeof(int));
+  for (unsigned long i = 0; i < SIZE; i++) {
+      float prob = rand()/(float)RAND_MAX;
+      int chance_index = -1;
+      float total_prob = 0.0;
+      do {
+        total_prob += chances[++chance_index];
+      } while (total_prob < prob && chance_index < num_elements);
+      dec_insn.code->fields[i] = elements[chance_index];
+  }
+}
+
+
+int parse(int argc, char** argv) {
   if (argc != 3) {
-    fprintf(stderr, "Sintaxe: %s SIZE [2/4]\n", argv[0]);
+    fprintf(stderr, "Sintax: %s SIZE CHANCE_FIRST\n", argv[0]);
     return 0;
   } else {
     const unsigned SIZE = atoi(argv[1]);
-    const int CODE = atoi(argv[2]);
-    assert(CODE == 2 || CODE == 4);
-    dec_insn.opcode = ~0U;
-    dec_insn.cexp =  (int*)malloc(SIZE * sizeof(int));
-    dec_insn.regs =  (int*)malloc(SIZE * sizeof(int));
-    dec_insn.code = (TYPE_1__*)malloc(sizeof(TYPE_1__));
-    dec_insn.code->nr_operands = SIZE;
-    dec_insn.code->fields = (int*)malloc(SIZE * sizeof(int));
-    for (int i = 0; i < dec_insn.code->nr_operands; i++) {
-      dec_insn.code->fields[i] = CODE;
-    }
+    const float CHANCE_FIRST = atof(argv[2]);
+    assert(CHANCE_FIRST >= 0.0 && CHANCE_FIRST <= 1.0 && 
+    "Element distribution probabilities should be between 0 and 1");
+
+    float chances[] = {CHANCE_FIRST};
+    int elements[] = {FIRST, SECOND};
+
+    setup(SIZE, elements, chances, 1);
     return 1;
   }
 }
 
 int main(int argc, char** argv) {
-  if (setup(argc, argv)) {
+  if (parse(argc, argv)) {
     clock_t start;
     clock_t end;
     start = clock();

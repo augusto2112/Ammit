@@ -18,29 +18,14 @@ typedef struct Str1 Data;
 
 enum TYPES {CHAR, UINT, DOUB};
 
-Data** init(const unsigned SIZE, const float PChar, const float PUint) {
-  Data** vec = (Data**)malloc(SIZE * sizeof(Data*));
-  for (long i = 0; i < SIZE; i++) {
-    float prob = rand()/(float)RAND_MAX;
-    Data* d = (Data*)malloc(sizeof(Data));
-    if (prob < PChar) {
-      d->tag = CHAR;
-      d->data.c = i % 127;
-    } else if (prob < (PChar + PUint)) {
-      d->tag = UINT;
-      d->data.c = i;
-    } else {
-      d->tag = DOUB;
-      d->data.c = 1.0/(i + 1);
-    }
-    vec[i] = d;
-  }
-  return vec;
-}
 
-double iterate(Data** vec, const unsigned SIZE) {
+
+Data **vec;
+unsigned long SIZE;
+
+double iterate() {
   double pSum;
-  for (int i = 0; i < SIZE; i++) {
+  for (unsigned long i = 0; i < SIZE; i++) {
     switch (vec[i]->tag) {
       // INSERT HERE
 			// START 1
@@ -65,33 +50,56 @@ double iterate(Data** vec, const unsigned SIZE) {
   return pSum;
 }
 
-void run_experiment(Data** vec, unsigned SIZE, unsigned ITERs) {
-  double sum_avg = 0;
-  clock_t start;
-  clock_t end;
-  start = clock();
-  for (int i = 0; i < ITERs; i++) {
-    sum_avg += iterate(vec, SIZE);
+
+void setup(float *chances) {
+  vec = (Data**)malloc(SIZE * sizeof(Data*));
+  for (unsigned long i = 0; i < SIZE; i++) {
+    Data* d = (Data*)malloc(sizeof(Data));
+    float prob = rand()/(float)RAND_MAX;
+    if (prob < chances[0]) {
+      d->tag = CHAR;
+      d->data.c = i % 127;
+    } else if (prob < chances[1]) {
+      d->tag = UINT;
+      d->data.u = i;
+    } else {
+      d->tag = DOUB;
+      d->data.d = 1.0/(i + 1);
+    }
+    vec[i] = d;
   }
-  end = clock();
-  double seconds = (float)(end - start) / CLOCKS_PER_SEC;
-  printf("%.2lf", seconds);
+}
+
+int parse(int argc, char** argv) {
+  if (argc != 4) {
+    fprintf(stderr, "Sintax: %s SIZE CHANCE_FIRST CHANCE SECOND\n", argv[0]);
+    return 0;
+  } else {
+    SIZE = atoi(argv[1]);
+    const float CHANCE_FIRST = atof(argv[2]);
+    const float CHANCE_SECOND = atof(argv[3]);
+
+    assert(CHANCE_FIRST + CHANCE_SECOND >= 0.0 && CHANCE_FIRST + CHANCE_SECOND <= 1.0 && 
+    "Element distribution probabilities should be between 0 and 1");
+
+    float chances[] = {CHANCE_FIRST, CHANCE_SECOND};
+
+    setup(chances);
+
+    return 1;
+  }
 }
 
 int main(int argc, char** argv) {
-  if (argc == 5) {
-    // Read the arguments:
-    const unsigned N = atoi(argv[1]);
-    const float C = atof(argv[2]);
-    const float U = atof(argv[3]);
-    const unsigned T = atoi(argv[4]);
-    assert((C + U >= 0.0 && C + U < 1.0) && "Invalid probabilities.");
-    // Initialize the vector of unions:
-    Data** vec = init(N, C, U);
-    // Run the experiments:
-    run_experiment(vec, N, T);
+  if (parse(argc, argv)) {
+    clock_t start;
+    clock_t end;
+    start = clock();
+    volatile double d = iterate(); // volatile is needed or sele the call is optimized away
+    end = clock();
+    double seconds = (float)(end - start) / CLOCKS_PER_SEC;
+    printf("%.2lf", seconds);
   } else {
-    printf("Syntax: vec[N] pChar[C] pUint[U] tests[T]\n");
-  }
-  return 0;
+    return 1;
+  } 
 }
