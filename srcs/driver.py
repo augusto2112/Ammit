@@ -4,6 +4,8 @@ from pathlib import Path
 from subprocess import run
 from csv import writer, reader
 from os import walk, path
+from argparse import ArgumentParser
+from statistics import median
 
 def generate_permutations(file, directory):
     stem = file.stem
@@ -52,8 +54,8 @@ def run_experiment(compiler, opt_levels, directory, number_of_experiments, csv_w
                 runtimes = []
                 for i in range(1, number_of_experiments + 1):
                     output = run(f'{exe_path} {config}', shell=True, check=True, capture_output=True)
-                    runtimes.append(output.stdout.decode('ascii'))
-                csv_writer.writerow([name, config, permutation, opt_level] + runtimes)
+                    runtimes.append(float(output.stdout.decode('ascii')))
+                csv_writer.writerow([name, config, permutation, opt_level] + runtimes + [median(runtimes)])
                 exe_path.unlink()
     for path in paths:
         path.unlink()
@@ -65,13 +67,11 @@ def read_config(directory):
     if not config_path.exists():
         return []
     with open(config_path) as config:
-        config_reader = reader(config)
-        configs = [x for x in config_reader]
-        return [' '.join([y.strip() for y in x]) for x in product(*configs)]
+        return [line for line in [line.split('#')[0].strip() for line in config] if line != '']
 
 
 
-def process(directory, csv_writer):
+def process(directory, csv_writer,number_of_experiments, optimization):
     if "tmp" in str(directory): return
     print(f"Processing directory: {directory}")
     for directory, _, files in list(walk(directory)):
@@ -79,19 +79,26 @@ def process(directory, csv_writer):
         for input_file in files:
             if input_file.endswith('.c'):
                 paths = generate_permutations(Path(path.join(directory, input_file)), tmp)
-                run_experiment(compiler, [1], tmp, number_of_experiments, csv_writer, paths, configs)
+                run_experiment(compiler, optimization, tmp, number_of_experiments, csv_writer, paths, configs)
 
 if __name__ == "__main__":
-    if len(argv) < 3:
-        print("Script needs at least one argument")
-        exit()
-
-    number_of_experiments = int(argv[1])
-    compiler = argv[2]
+    parser = ArgumentParser(description='Driver for the Ammit project benchmarks.')
+    parser.add_argument('num_experiments', type=int, help='Number of experiments to run.')
+    parser.add_argument('-O', dest='optimization', type=int, default=[1], nargs='*',
+                        help='Optimization levels to compile the experiments. Defaults to 1')
+    parser.add_argument('-compiler', dest='compiler', default='clang', help='Compiler to use. Default is clang')
+    args = parser.parse_args()
+    
+    number_of_experiments = args.num_experiments
+    compiler = args.compiler
+    optimization = args.optimization
+    
 
     tmp = Path("./tmp").resolve()
     tmp.mkdir(parents=True, exist_ok=True)
-    with open("csv.csv", 'w') as csv_file:
+    with open("results.csv", 'w') as csv_file:
         csv_writer = writer(csv_file)
-        process(Path("."), csv_writer)        
+        arg_rows = [f'Exp {i}' for i in range(1, number_of_experiments + 1)]
+        csv_writer.writerow(["Name", "Arguments", "Permutation", "Optimization"] + arg_rows + ["Median"])
+        process(Path("."), csv_writer, number_of_experiments, optimization)        
     tmp.rmdir()

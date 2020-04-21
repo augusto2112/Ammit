@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
     // Run the experiments:
     run_experiment(vec, N, T);
   } else {
-    printf("Syntax: vec[N] pChar[C] pUint[U] tests[T] experiments[X]\n");
+    printf("Syntax: vec[N] pChar[C] pUint[U] tests[T]\n");
   }
   return 0;
 }

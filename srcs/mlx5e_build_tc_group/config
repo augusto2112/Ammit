@@ -1,2 +1,4 @@
-1000000
-128
+# Args: Size, element chosen (128 for first, 129 second, 130 third)
+40000000 128
+80000000 128
+160000000 128

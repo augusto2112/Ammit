@@ -1,4 +1,4 @@
-10000000, 20000000, 40000000
-0.4
-0.2
-3
+# Args: Size, chance of first element, chance of second element, number of experiments (internal, returns average)
+10000000 0.4 0.2 3
+20000000 0.4 0.2 3
+40000000 0.4 0.2 3

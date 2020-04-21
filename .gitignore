@@ -76,4 +76,5 @@ switch-finder/.idea
 *.ll
 *.exe
 *.dot
+*.csv
 src/tmp
