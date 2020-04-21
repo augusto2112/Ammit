@@ -32,19 +32,24 @@ static void decode_bo() {
 
   for (i = 0; i < dec_insn.code->nr_operands; ++i) {
     switch (dec_insn.code->fields[i]) {
+      // INSERT HERE
+			// START 1
       case FMT_BO_OFF10:
         o1 = (dec_insn.opcode & 0x003f0000) >> 16;
         o2 = (dec_insn.opcode & 0xf0000000) >> 22;
         dec_insn.cexp[i] = o1 | o2;
         break;
-
+      // END 1
+      // START 2
       case FMT_BO_S2:
         dec_insn.regs[i] = (dec_insn.opcode & 0x0000f000) >> 12;
         break;
-
+      // END 2
+      // START 3
       case FMT_BO_S1_D:
         dec_insn.regs[i] = (dec_insn.opcode & 0x00000f00) >> 8;
         break;
+      // END 3
     }
   }
 }
@@ -78,6 +83,6 @@ int main(int argc, char** argv) {
     decode_bo();
     end = clock();
     double seconds = (float)(end - start) / CLOCKS_PER_SEC;
-    printf("%.2lf, ", seconds);
+    printf("%.2lf", seconds);
   }
 }

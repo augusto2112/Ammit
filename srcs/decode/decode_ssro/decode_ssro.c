@@ -27,16 +27,19 @@ TYPE_2__ dec_insn ;
 
 static void decode_ssro() {
   int i;
-
   for (i = 0; i < dec_insn.code->nr_operands; ++i) {
     switch (dec_insn.code->fields[i]) {
-      case FMT_SSRO_S1:
-        dec_insn.regs[i] = (dec_insn.opcode & 0x0f00) >> 8;
-        break;
-
+      // INSERT HERE
+			// START 1
       case FMT_SSRO_OFF4:
         dec_insn.cexp[i] = (dec_insn.opcode & 0xf000) >> 12;
         break;
+      // END 1
+      // START 2
+      case FMT_SSRO_S1:
+        dec_insn.regs[i] = (dec_insn.opcode & 0x0f00) >> 8;
+        break;
+      // END 2
     }
   }
 }
@@ -70,6 +73,6 @@ int main(int argc, char** argv) {
     decode_ssro();
     end = clock();
     double seconds = (float)(end - start) / CLOCKS_PER_SEC;
-    printf("%.2lf, ", seconds);
+    printf("%.2lf", seconds);
   }
 }

@@ -42,17 +42,24 @@ double iterate(Data** vec, const unsigned SIZE) {
   double pSum;
   for (int i = 0; i < SIZE; i++) {
     switch (vec[i]->tag) {
+      // INSERT HERE
+			// START 1
       case CHAR:
         pSum += vec[i]->data.c;
         break;
+      // END 1
+			// START 2
       case UINT:
         pSum += vec[i]->data.u;
         break;
+      // END 2
+			// START 3
       case DOUB:
         pSum += vec[i]->data.d;
         break;
+      // END 3
       default:
-        printf("Invalid option\n");
+        break;
     }
   }
   return pSum;
@@ -68,25 +75,21 @@ void run_experiment(Data** vec, unsigned SIZE, unsigned ITERs) {
   }
   end = clock();
   double seconds = (float)(end - start) / CLOCKS_PER_SEC;
-  printf("%.2lf (%.2lf) ", seconds, sum_avg);
+  printf("%.2lf", seconds);
 }
 
 int main(int argc, char** argv) {
-  if (argc == 6) {
+  if (argc == 5) {
     // Read the arguments:
     const unsigned N = atoi(argv[1]);
     const float C = atof(argv[2]);
     const float U = atof(argv[3]);
     const unsigned T = atoi(argv[4]);
-    const unsigned X = atoi(argv[5]);
     assert((C + U >= 0.0 && C + U < 1.0) && "Invalid probabilities.");
     // Initialize the vector of unions:
     Data** vec = init(N, C, U);
     // Run the experiments:
-    for (int i = 0; i < X; i++) {
-      run_experiment(vec, N, T);
-    }
-    printf("\n");
+    run_experiment(vec, N, T);
   } else {
     printf("Syntax: vec[N] pChar[C] pUint[U] tests[T] experiments[X]\n");
   }
