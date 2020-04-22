@@ -3,9 +3,9 @@ from itertools import permutations, product
 from pathlib import Path
 from subprocess import run
 from csv import writer, reader
-from os import walk, path
+from os import walk, path, fsync
 from argparse import ArgumentParser
-from statistics import median
+from statistics import median, mean
 
 def generate_permutations(file, directory):
     stem = file.stem
@@ -43,7 +43,7 @@ def generate_permutations(file, directory):
             paths.append(new_filename)
     return paths
 
-def run_experiment(compiler, opt_levels, directory, number_of_experiments, csv_writer, paths, configs):
+def run_experiment(compiler, opt_levels, directory, number_of_experiments, csv_file, csv_writer, paths, configs):
     for config in configs:
         for opt_level in opt_levels:
             for path in paths:
@@ -56,7 +56,9 @@ def run_experiment(compiler, opt_levels, directory, number_of_experiments, csv_w
                     for i in range(1, number_of_experiments + 1):
                         output = run(f'{exe_path} {config}', shell=True, check=True, capture_output=True)
                         runtimes.append(float(output.stdout.decode('ascii')))
-                    csv_writer.writerow([name, config, permutation, opt_level] + runtimes + [median(runtimes)])
+                    csv_writer.writerow([name, config, permutation, opt_level] + runtimes + [median(runtimes), mean(runtimes)])
+                    csv_file.flush()
+                    # fsync()
                 except Exception as e:
                     print(f"{name} failed with exception: {e}. Skipping")
                 finally:
@@ -72,7 +74,7 @@ def read_config(directory):
     with open(config_path) as config:
         return [line for line in [line.split('#')[0].strip() for line in config] if line != '']
 
-def process(directory, csv_writer,number_of_experiments, optimization):
+def process(directory, csv_file, csv_writer, number_of_experiments, optimization):
     if "tmp" in str(directory): return
     print(f"Processing directory: {directory}")
     for directory, _, files in list(walk(directory)):
@@ -80,14 +82,14 @@ def process(directory, csv_writer,number_of_experiments, optimization):
         for input_file in files:
             if input_file.endswith('.c'):
                 paths = generate_permutations(Path(path.join(directory, input_file)), tmp)
-                run_experiment(compiler, optimization, tmp, number_of_experiments, csv_writer, paths, configs)
+                run_experiment(compiler, optimization, tmp, number_of_experiments, csv_file, csv_writer, paths, configs)
 
 if __name__ == "__main__":
     parser = ArgumentParser(description='Driver for the Ammit project benchmarks.')
     parser.add_argument('num_experiments', type=int, help='Number of experiments to run.')
     parser.add_argument('-O', dest='optimization', type=int, default=[1], nargs='*',
                         help='Optimization levels to compile the experiments. Defaults to 1')
-    parser.add_argument('-compiler', dest='compiler', default='clang++', help='Compiler to use. Default is clang')
+    parser.add_argument('-compiler', dest='compiler', default='clang', help='Compiler to use. Default is clang')
     parser.add_argument('-o', dest='output_file', default='results.csv', help='Ouput file to write. Default is "results.csv"')
     parser.add_argument('-d', dest='start_directory', default='.', 
                         help='Start directory for recursive search. Default is the current directory.')
@@ -104,6 +106,6 @@ if __name__ == "__main__":
     with open(output_file, 'w') as csv_file:
         csv_writer = writer(csv_file)
         arg_rows = [f'Exp {i}' for i in range(1, number_of_experiments + 1)]
-        csv_writer.writerow(["Name", "Arguments", "Permutation", "Optimization"] + arg_rows + ["Median"])
-        process(Path(start_directory), csv_writer, number_of_experiments, optimization)        
+        csv_writer.writerow(["Name", "Arguments", "Permutation", "Optimization"] + arg_rows + ["Median", "Mean"])
+        process(Path(start_directory), csv_file, csv_writer, number_of_experiments, optimization)        
     tmp.rmdir()

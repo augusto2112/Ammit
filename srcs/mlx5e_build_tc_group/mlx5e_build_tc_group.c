@@ -48,6 +48,7 @@ __attribute__((used)) static void mlx5e_build_tc_group(struct ieee_ets *ets, u8 
 	if (ets_zero_bw)
 		strict_group++;
 
+	ets_zero_bw = true;
 	for (i = 0; i <= max_tc; i++) {
 		switch (ets->tc_tsa[i]) {
 			// INSERT HERE
@@ -64,8 +65,6 @@ __attribute__((used)) static void mlx5e_build_tc_group(struct ieee_ets *ets, u8 
 			// START 3
 			case THIRD:
 			tc_group[i] = MLX5E_LOWEST_PRIO_GROUP;
-			if (ets->tc_tx_bw[i] && ets_zero_bw)
-				tc_group[i] = MLX5E_LOWEST_PRIO_GROUP + 1;
 			break;
 			// END 3
 
