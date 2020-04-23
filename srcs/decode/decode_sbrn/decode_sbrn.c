@@ -3,44 +3,50 @@
 #include <stdlib.h>
 #include <assert.h>
 
+typedef unsigned long size_t;  // Customize by platform.
+typedef long intptr_t; typedef unsigned long uintptr_t;
+typedef long scalar_t__;  // Either arithmetic or pointer type.
+/* By default, we understand bool (as a convenience). */
+#define false 0
+#define true 1
+
 /* Forward declarations */
 typedef  struct TYPE_4__   TYPE_2__ ;
 typedef  struct TYPE_3__   TYPE_1__ ;
 
 /* Type definitions */
-struct TYPE_4__ {
-  int* cexp;
-  int opcode;
-  int* regs;
-  TYPE_1__* code;
-};
-
-struct TYPE_3__ {
-  int nr_operands;
-  int* fields;
-};
+struct TYPE_4__ {int* cexp; int opcode; TYPE_1__* code; } ;
+struct TYPE_3__ {int nr_operands; int* fields; char* args; } ;
 
 /* Variables and functions */
-#define FIRST 601
-#define SECOND  602 
-TYPE_2__ dec_insn ; 
+#define  SECOND 129 
+#define  FIRST 128 
+ TYPE_2__ dec_insn ; 
 
-static void decode_ssro() {
+__attribute__((used)) static void
+decode_sbrn ()
+{
   int i;
+
   for (i = 0; i < dec_insn.code->nr_operands; ++i) {
-    switch (dec_insn.code->fields[i]) {
+	  switch (dec_insn.code->fields[i]) {
       // INSERT HERE
 			// START 1
       case FIRST:
-        dec_insn.cexp[i] = (dec_insn.opcode & 0xf000) >> 12;
+        if (dec_insn.code->args[i] == '5') {
+          dec_insn.cexp[i] = (dec_insn.opcode & 0xf000) >> 12;
+          dec_insn.cexp[i] |= (dec_insn.opcode & 0x0080) >> 3;
+        } else {
+          dec_insn.cexp[i] = (dec_insn.opcode & 0xf000) >> 12;
+        }
         break;
       // END 1
       // START 2
       case SECOND:
-        dec_insn.regs[i] = (dec_insn.opcode & 0x0f00) >> 8;
+        dec_insn.cexp[i] = (dec_insn.opcode & 0x0f00) >> 8;
         break;
       // END 2
-    }
+	  }
   }
 }
 
@@ -48,10 +54,10 @@ static void decode_ssro() {
 void setup(unsigned long SIZE, int *elements, float *chances, int num_elements) {
   dec_insn.opcode = ~0U;
   dec_insn.cexp =  (int*)malloc(SIZE * sizeof(int));
-  dec_insn.regs =  (int*)malloc(SIZE * sizeof(int));
   dec_insn.code = (TYPE_1__*)malloc(sizeof(TYPE_1__));
   dec_insn.code->nr_operands = SIZE;
   dec_insn.code->fields = (int*)malloc(SIZE * sizeof(int));
+  dec_insn.code->args = (char*)malloc(SIZE * sizeof(char));
   for (unsigned long i = 0; i < SIZE; i++) {
       float prob = rand()/(float)RAND_MAX;
       int chance_index = -1;
@@ -60,6 +66,7 @@ void setup(unsigned long SIZE, int *elements, float *chances, int num_elements) 
         total_prob += chances[++chance_index];
       } while (total_prob < prob && chance_index < num_elements);
       dec_insn.code->fields[i] = elements[chance_index];
+      dec_insn.code->args[i] = rand() % 2 ? '5' : 0;
   }
 }
 
@@ -87,7 +94,7 @@ int main(int argc, char** argv) {
     clock_t start;
     clock_t end;
     start = clock();
-    decode_ssro();
+    decode_sbrn();
     end = clock();
     double seconds = (float)(end - start) / CLOCKS_PER_SEC;
     printf("%.2lf", seconds);

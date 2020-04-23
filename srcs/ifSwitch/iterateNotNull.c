@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
     clock_t start;
     clock_t end;
     start = clock();
-    iterateNotNULL();
+    volatile long n = iterateNotNULL();
     end = clock();
     double seconds = (float)(end - start) / CLOCKS_PER_SEC;
     printf("%.2lf", seconds);

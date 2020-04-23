@@ -1,1 +1,6 @@
-# Args: Size, density as mod, so 5 would partition data in a ratio of 20%/80%, number of experiments (internal, returns average)
+# args: Size, chance FIRST
+100000000 1.0
+#100000000 0.9
+#100000000 0.8
+#100000000 0.7
+
