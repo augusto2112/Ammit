@@ -1,0 +1,5 @@
+# Args: Size, chance of first element, chance of second element
+#400000000 1.00
+400000000 0.9
+#400000000 0.80
+#400000000 0.70
