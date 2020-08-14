@@ -12,6 +12,7 @@
 #include <assert.h>
 
 typedef unsigned long size_t;  // Customize by platform.
+typedef long scalar_t__;  // Either arithmetic or pointer type.
 /* By default, we understand bool (as a convenience). */
 // typedef int bool;
 #define false 0

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+typedef long scalar_t__;  // Either arithmetic or pointer type.
 /* Forward declarations */
 typedef  struct TYPE_4__   TYPE_2__ ;
 typedef  struct TYPE_3__   TYPE_1__ ;

@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+typedef long scalar_t__;  // Either arithmetic or pointer type.
 /* By default, we understand boolean (as a convenience). */
 typedef int boolean;
 #define false 0

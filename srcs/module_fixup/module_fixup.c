@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 /* By default, we understand bool (as a convenience). */
+typedef long scalar_t__;  // Either arithmetic or pointer type.
 typedef int bool;
 #define false 0
 #define true 1
