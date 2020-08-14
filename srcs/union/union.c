@@ -28,17 +28,17 @@ double iterate() {
   for (unsigned long i = 0; i < SIZE; i++) {
     switch (vec[i]->tag) {
       // INSERT HERE
-			// START 1
+      // START 1
       case CHAR:
         pSum += vec[i]->data.c;
         break;
       // END 1
-			// START 2
+      // START 2
       case UINT:
         pSum += vec[i]->data.u;
         break;
       // END 2
-			// START 3
+      // START 3
       case DOUB:
         pSum += vec[i]->data.d;
         break;

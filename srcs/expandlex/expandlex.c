@@ -1,3 +1,11 @@
+/*------------------------ Project Ammit Test ---------------------------------
+------ Source repo: Quake-III-Arena (github.com/id-Software/Quake-III-Arena)---
+------ Description: Part of the modified LCC compiler used to compile Quake3---
+------ game modules, this function is part of the compiler's lexer. It expands-
+------ the lexer's Finite State Machine table size to the closest power of two-
+------ to favor the use of bitshift operations, to improve their efficiency.--- 
+------ Location: Quake-III-Arena/lcc/cpp/lex.c-------------------------------*/
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>

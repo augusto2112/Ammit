@@ -1,3 +1,10 @@
+/*------------------------ Project Ammit Test ---------------------------------
+------ Source repo: Linux Kernel (github.com/torvalds/linux)-------------------
+------ Description: Part of the Linux kernel's drivers for ENE Technology------
+------ USB Mass Storage drives, this function counts the number of free memory-
+------ blocks in the device's physical blocks.---------------------------------
+------ Location: linux/drivers/usb/storage/ene_ub6250.c----------------------*/
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
