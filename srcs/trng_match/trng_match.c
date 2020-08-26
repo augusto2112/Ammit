@@ -41,9 +41,9 @@ trng_match(struct ARCHD *arcn)
 	pt = trhead;
 	while (pt != NULL) {
 		switch(pt->flgs & CMPBOTH) {
-		case CMPBOTH:
         // INSERT HERE
         // START 1
+		case CMPBOTH:
 			/*
 			 * user wants both mtime and ctime checked for this
 			 * time range
