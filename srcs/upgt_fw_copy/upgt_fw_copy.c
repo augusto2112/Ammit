@@ -27,30 +27,36 @@ __attribute__((used)) static int
 upgt_fw_copy(const uint8_t *src, char *dst, int size)
 {
 	int i, j;
+    long long int s1 = 0, s2 = 0, s3 = 0;
 	
 	for (i = 0, j = 0; i < size && j < size; i++) {
 		switch (src[i]) {
 		// INSERT HERE
-		case 0x7e:
 		// START 1
+		case 0x7e:
+            s1++;
 			dst[j] = 0x7d;
 			j++;
 			dst[j] = 0x5e;
 			j++;
 			break;
 		// END 1	
-		case 0x7d:
 		// START 2
+		case 0x7d:
+            s2++;
 			dst[j] = 0x7d;
 			j++;
 			dst[j] = 0x5d;
 			j++;
 			break;
-		default:
 		// END 2
+        // START 3
+		default:
+            s3++;
 			dst[j] = src[i];
 			j++;
 			break;
+        // END 3
 		}
 	}
 
@@ -78,19 +84,20 @@ void setup(unsigned long SIZE, char *elements, float *chances, int num_elements)
 }
 
 int parse(int argc, char** argv) {
-  if (argc != 3) {
-    fprintf(stderr, "Syntax: %s SIZE CHANCE_FIRST\n", argv[0]);
+  if (argc != 4) {
+    fprintf(stderr, "Syntax: %s SIZE CHANCE_FIRST CHANCE_SECOND\n", argv[0]);
     return 0;
   } else {
     const unsigned SIZE = atoi(argv[1]);
     const float CHANCE_FIRST = atof(argv[2]);
-    assert(CHANCE_FIRST >= 0.0 && CHANCE_FIRST <= 1.0 && 
+    const float CHANCE_SECOND = atof(argv[3]);
+    assert(CHANCE_FIRST + CHANCE_SECOND >= 0.0 && CHANCE_FIRST + CHANCE_SECOND <= 1.0 && 
     "Element distribution probabilities should be between 0 and 1");
 
-    float chances[] = {CHANCE_FIRST};
-    char elements[] = {0x7e, 0x7d};
+    float chances[] = {CHANCE_FIRST, CHANCE_SECOND};
+    char elements[] = {0x7e, 0x7d, 0x7c};
 
-    setup(SIZE, elements, chances, 1);
+    setup(SIZE, elements, chances, 2);
     return 1;
   }
 }
