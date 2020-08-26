@@ -27,14 +27,12 @@ __attribute__((used)) static int
 upgt_fw_copy(const uint8_t *src, char *dst, int size)
 {
 	int i, j;
-    long long int s1 = 0, s2 = 0, s3 = 0;
 	
 	for (i = 0, j = 0; i < size && j < size; i++) {
 		switch (src[i]) {
 		// INSERT HERE
 		// START 1
 		case 0x7e:
-            s1++;
 			dst[j] = 0x7d;
 			j++;
 			dst[j] = 0x5e;
@@ -43,7 +41,6 @@ upgt_fw_copy(const uint8_t *src, char *dst, int size)
 		// END 1	
 		// START 2
 		case 0x7d:
-            s2++;
 			dst[j] = 0x7d;
 			j++;
 			dst[j] = 0x5d;
@@ -52,7 +49,6 @@ upgt_fw_copy(const uint8_t *src, char *dst, int size)
 		// END 2
         // START 3
 		default:
-            s3++;
 			dst[j] = src[i];
 			j++;
 			break;
