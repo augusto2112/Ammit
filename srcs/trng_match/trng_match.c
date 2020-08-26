@@ -33,6 +33,7 @@ __attribute__((used)) static int
 trng_match(struct ARCHD *arcn)
 {
 	struct TIME_RNG *pt;
+    long long int s1 = 0, s2 = 0, s3 = 0;
 
 	/*
 	 * have to search down the list one at a time looking for a match.
@@ -41,13 +42,14 @@ trng_match(struct ARCHD *arcn)
 	pt = trhead;
 	while (pt != NULL) {
 		switch(pt->flgs & CMPBOTH) {
-		case CMPBOTH:
         // INSERT HERE
         // START 1
+		case CMPBOTH:
 			/*
 			 * user wants both mtime and ctime checked for this
 			 * time range
 			 */
+            s1++;
 			if (((pt->flgs & HASLOW) &&
 			    (arcn->sb.st_mtime < pt->low_time) &&
 			    (arcn->sb.st_ctime < pt->low_time)) ||
@@ -61,6 +63,7 @@ trng_match(struct ARCHD *arcn)
         // END 1
         // START 2
 		case CMPCTME:
+            s2++;
 			/*
 			 * user wants only ctime checked for this time range
 			 */
@@ -76,6 +79,7 @@ trng_match(struct ARCHD *arcn)
         // START 3
 		case CMPMTME:
 		default:
+            s3++;
 			/*
 			 * user wants only mtime checked for this time range
 			 */
@@ -93,6 +97,7 @@ trng_match(struct ARCHD *arcn)
 	}
 
     volatile int force_opt = 1;
+    fprintf(stdout, "both%lli,ctme%lli,mtme%lli\n", s1, s2, s3);
 
 	if (pt == NULL)
 		return(1);
