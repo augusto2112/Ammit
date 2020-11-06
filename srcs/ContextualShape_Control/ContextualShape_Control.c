@@ -1,10 +1,15 @@
+/*------------------------ Project Ammit Test ---------------------------------
+------ Source repo: ReactOS (github.com/reactos/reactos)-----------------------
+------ Description: Part of the ReactOS operating system's implementation of---
+------ Windows' Unicode rendering system, this function manipulates the shape
+------ of Unicode characters to be rendered.-----------------------------------
+------ Location: reactos/dll/win32/usp10/shape.c-----------------------------*/
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
-typedef unsigned long size_t;  // Customize by platform.
-typedef long intptr_t; typedef unsigned long uintptr_t;
 typedef long scalar_t__;  // Either arithmetic or pointer type.
 /* By default, we understand bool (as a convenience). */
 typedef int boolean;
@@ -43,7 +48,7 @@ __attribute__((used)) static void ContextualShape_Control(HDC hdc, ScriptCache *
         switch (pwcChars[i])
         {
             // INSERT HERE
-			      // START 1
+			// START 1
             case FIRST:
             case SECOND:
                 pwOutGlyphs[i] = psc->sfp.wgBlank;

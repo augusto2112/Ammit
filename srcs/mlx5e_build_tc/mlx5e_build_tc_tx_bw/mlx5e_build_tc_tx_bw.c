@@ -1,12 +1,18 @@
+/*------------------------ Project Ammit Test ---------------------------------
+------ Source repo: Linux Kernel (github.com/torvalds/linux)-------------------
+------ Description: Part of the Linux kernel's drivers for Mellanox 5th gen----
+------ network adapters, this function builds a section of an ethernet packet--
+------ based on the ETS (Enhanced Transmission Selection) for traffic priori---
+------ tization.---------------------------------------------------------------
+------ Location: linux/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c----*/
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
-typedef unsigned long size_t;  // Customize by platform.
-typedef long intptr_t; typedef unsigned long uintptr_t;
-typedef long scalar_t__;  // Either arithmetic or pointer type.
 /* By default, we understand bool (as a convenience). */
+typedef long scalar_t__;  // Either arithmetic or pointer type.
 #define false 0
 #define true 1
 

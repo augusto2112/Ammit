@@ -1,8 +1,15 @@
+/*------------------------ Project Ammit Test ---------------------------------
+------ Source repo: radare2 (github.com/radareorg/radare2) --------------------
+------ Description: Part of radare's TriCore architecture disassembler, this---
+------ function decodes a specific instruction type in TriCore's ISA.----------
+------ Location: radare2/lib2/asm/arch/tricore/gnu/tricore-dis.c ------------*/
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
+typedef long scalar_t__;  // Either arithmetic or pointer type.
 /* Forward declarations */
 typedef struct TYPE_4__ TYPE_2__;
 typedef struct TYPE_3__ TYPE_1__;

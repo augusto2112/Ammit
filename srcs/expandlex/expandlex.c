@@ -1,10 +1,17 @@
+/*------------------------ Project Ammit Test ---------------------------------
+------ Source repo: Quake-III-Arena (github.com/id-Software/Quake-III-Arena)---
+------ Description: Part of the modified LCC compiler used to compile Quake3---
+------ game modules, this function is part of the compiler's lexer. It expands-
+------ the lexer's Finite State Machine table size to the closest power of two-
+------ to favor the use of bitshift operations, to improve their efficiency.--- 
+------ Location: Quake-III-Arena/lcc/cpp/lex.c-------------------------------*/
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
 typedef unsigned long size_t;  // Customize by platform.
-typedef long intptr_t; typedef unsigned long uintptr_t;
 typedef long scalar_t__;  // Either arithmetic or pointer type.
 /* By default, we understand bool (as a convenience). */
 // typedef int bool;
@@ -47,9 +54,8 @@ expandlex(void)
 			if (nstate >= S_SELF)
 				nstate = ~nstate;
 			switch (fp->ch[i]) {
-          // INSERT HERE
+        // INSERT HERE
 		// START 1
-
 			case FIRST:		/* random characters */
 				for (j=0; j<256; j++) 
           bigfsm[j][fp->state] = nstate;          
@@ -69,13 +75,12 @@ expandlex(void)
 					bigfsm[j][fp->state] = nstate;
 				continue;
         // END 3
-        // START 4
 			default:
 				bigfsm[fp->ch[i]][fp->state] = nstate;
-        // END 4
 			}
 		}
 	}
+
 	/* install special cases for ? (trigraphs),  \ (splicing), runes, and EOB */
 	for (i=0; i<MAXSTATE; i++) {
 		for (j=0; j<0xFF; j++)
@@ -115,22 +120,21 @@ void setup(unsigned long SIZE1, int SIZE2, int *elements, float *chances, int nu
 }
 
 int parse(int argc, char** argv) {
-  if (argc != 6) {
-    fprintf(stderr, "Sintax: %s SIZE1 SIZE2 CHANCE_FIRST CHANCE_SECOND CHANCE_THIRD\n", argv[0]);
+  if (argc != 5) {
+    fprintf(stderr, "Sintax: %s SIZE1 SIZE2 CHANCE_FIRST CHANCE_SECOND\n", argv[0]);
     return 0;
   } else {
     const unsigned SIZE1 = atoi(argv[1]);
     const unsigned SIZE2 = atoi(argv[2]);
     const float CHANCE_FIRST = atof(argv[3]);
     const float CHANCE_SECOND = atof(argv[4]);
-    const float CHANCE_THIRD = atof(argv[5]);
-    assert(CHANCE_FIRST + CHANCE_SECOND  + CHANCE_THIRD >= 0.0 && CHANCE_FIRST + CHANCE_SECOND  + CHANCE_THIRD <= 1.0 && 
+    assert(CHANCE_FIRST + CHANCE_SECOND >= 0.0 && CHANCE_FIRST + CHANCE_SECOND <= 1.0 && 
     "Element distribution probabilities should be between 0 and 1");
 
-    float chances[] = {CHANCE_FIRST, CHANCE_SECOND, CHANCE_THIRD};
-    int elements[] = {FIRST, SECOND, THIRD, FOURTH};
+    float chances[] = {CHANCE_FIRST, CHANCE_SECOND};
+    int elements[] = {FIRST, SECOND, THIRD};
 
-    setup(SIZE1, SIZE2, elements, chances, 3);
+    setup(SIZE1, SIZE2, elements, chances, 2);
     return 1;
   }
 }

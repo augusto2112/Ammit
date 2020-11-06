@@ -1,8 +1,10 @@
 
 
 #include "llvm/Analysis/LoopInfo.h"
+#include "llvm/Analysis/TargetLibraryInfo.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Instructions.h"
+#include "llvm/IR/InstIterator.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/Utils/LoopUtils.h"
@@ -86,13 +88,44 @@ struct SwitchFinder : public FunctionPass {
     return filtered;
   }
 
+  bool callsExternalFunc(Function &F) {
+    const TargetLibraryInfo *TLI;
+
+    for (auto &BB : F) {
+      for (auto &I : BB) {
+        //return whether there's a call to a non-stardard external function
+        if (CallInst *CI = dyn_cast<CallInst>(&I)) {
+          LibFunc lib_function;
+
+          Function *Callee = CI->getCalledFunction();
+          //indirect calls are unpredictable so mark them as unsafe
+          if (Callee == nullptr) {
+            return true;
+          }
+
+          StringRef fun_name = Callee->getName();
+          if (!TLI->getLibFunc(*CI, lib_function) && Callee->isDeclaration()) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
   bool runOnFunction(Function &F) override {
+    if (callsExternalFunc(F)) {
+      return false;
+    }
+
     LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
     for (auto switchInfo : filterRelevantSwitches(collectSwitches(F, LI))) {
       errs() << switchInfo << "\n";
     }
     return false;
   }
+
   void getAnalysisUsage(AnalysisUsage &AU) const override {
     AU.setPreservesAll();
     getLoopAnalysisUsage(AU);
